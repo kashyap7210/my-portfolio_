@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JARVESH ERP</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f7fb;color:#1e293b}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+.app{display:flex;min-height:100vh}.sidebar{width:245px;background:#111827;color:#fff;padding:18px 12px;position:fixed;inset:0 auto 0 0;overflow:auto}
+.logo{font-size:22px;font-weight:800;padding:8px 10px 22px}.logo span{color:#60a5fa}
+.nav{display:block;width:100%;border:0;background:none;color:#cbd5e1;text-align:left;padding:11px 12px;border-radius:8px;margin:3px 0}
+.nav:hover,.nav.active{background:#2563eb;color:#fff}.main{margin-left:245px;width:calc(100% - 245px)}
+.top{height:68px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;padding:0 25px;position:sticky;top:0;z-index:5}
+.page{padding:25px}.title{font-size:25px;font-weight:800;margin-bottom:5px}.muted{color:#64748b;font-size:14px}
+.toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between;margin:18px 0;flex-wrap:wrap}
+.btn{border:0;border-radius:8px;padding:10px 15px;background:#2563eb;color:white;font-weight:700}.btn.secondary{background:#e2e8f0;color:#1e293b}.btn.danger{background:#dc2626}.btn.success{background:#16a34a}
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:18px;box-shadow:0 2px 8px #00000008}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.stat b{display:block;font-size:25px;margin-top:8px}
+.tablewrap{overflow:auto}.table{width:100%;border-collapse:collapse}.table th,.table td{padding:12px;border-bottom:1px solid #e5e7eb;text-align:left;white-space:nowrap}.table th{background:#f8fafc;font-size:13px}
+.formgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.field label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}.field input,.field select,.field textarea{width:100%;border:1px solid #cbd5e1;border-radius:7px;padding:10px;background:#fff}.field.full{grid-column:1/-1}
+.actions{display:flex;gap:7px}.empty{text-align:center;padding:35px;color:#64748b}
+.modal{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;padding:20px;z-index:20}.modal.show{display:flex}.modalbox{background:#fff;border-radius:12px;width:min(850px,100%);max-height:90vh;overflow:auto;padding:22px}
+.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.close{border:0;background:#f1f5f9;border-radius:50%;width:34px;height:34px}
+.invoice-items{width:100%;border-collapse:collapse}.invoice-items th,.invoice-items td{border-bottom:1px solid #ddd;padding:7px}.invoice-items input,.invoice-items select{width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:6px}
+.right{text-align:right}.summary{margin-left:auto;width:320px;max-width:100%;margin-top:18px}.sumrow{display:flex;justify-content:space-between;padding:7px 0}.total{font-size:20px;font-weight:800;border-top:2px solid #111827;margin-top:5px;padding-top:10px}
+.badge{padding:4px 8px;border-radius:20px;background:#dbeafe;color:#1d4ed8;font-size:12px;font-weight:700}
+@media(max-width:900px){.sidebar{width:210px}.main{margin-left:210px;width:calc(100% - 210px)}.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:650px){.sidebar{position:static;width:100%;height:auto}.app{display:block}.main{margin:0;width:100%}.top{position:static}.formgrid,.grid{grid-template-columns:1fr}.page{padding:15px}}
+
+/* Login Screen */
+.login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#0f172a,#1e3a8a);display:flex;align-items:center;justify-content:center;z-index:99999;padding:20px}
+.login-box{width:390px;max-width:92%;background:#fff;border-radius:18px;padding:38px;box-shadow:0 25px 70px #0005}
+.login-logo{text-align:center;font-size:32px;font-weight:900;color:#2563eb}
+.login-logo span{color:#111827}
+.login-subtitle{text-align:center;color:#64748b;margin:7px 0 30px;font-size:14px}
+.login-field{margin-bottom:18px}
+.login-field label{display:block;font-size:13px;font-weight:700;margin-bottom:7px}
+.login-field input{width:100%;padding:13px;border:1px solid #cbd5e1;border-radius:9px;outline:none}
+.login-field input:focus{border-color:#2563eb;box-shadow:0 0 0 3px #2563eb22}
+.remember{display:flex;align-items:center;gap:7px;font-size:13px;color:#475569;margin-bottom:18px}
+.login-btn{width:100%;border:0;padding:13px;border-radius:9px;background:#2563eb;color:#fff;font-weight:800;font-size:15px;cursor:pointer}
+.login-btn:hover{background:#1d4ed8}
+.login-error{color:#dc2626;text-align:center;font-size:13px;margin-top:12px;min-height:18px}
+.login-footer{text-align:center;color:#94a3b8;font-size:12px;margin-top:25px}
+
+/* JARVESH professional billing theme */
+.billing-head{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px}.billing-primary{padding:12px 18px;border-radius:9px}.billing-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}.billing-kpi{background:#fff;border:1px solid #e4e9ef;border-radius:11px;padding:14px 16px;box-shadow:0 2px 8px #00000006}.billing-kpi span{display:block;color:#64748b;font-size:12px}.billing-kpi b{display:block;font-size:21px;margin-top:5px;color:#15304a}.billing-list{padding:0;overflow:hidden}.billing-list-head{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:16px 18px;border-bottom:1px solid #e7ebef}.billing-search{width:260px;max-width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;outline:0}.billing-table td small{display:block;color:#94a3b8;margin-top:3px}.invoice-no{font-weight:800;color:#1f628e}.billing-modal{background:#f5f7fa}.billing-modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;background:#fff;margin:-22px -22px 0;padding:20px 22px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:2}.billing-eyebrow{font-size:10px;font-weight:800;letter-spacing:1.2px;color:#bf5700}.billing-modal-head h2{margin:3px 0 2px;color:#15304a}.billing-section{background:#fff;border:1px solid #e1e7ed;border-radius:9px;padding:16px;margin-top:14px}.section-title{display:flex;align-items:center;gap:9px;font-weight:800;color:#15304a;margin-bottom:14px}.section-title span{width:25px;height:25px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#15304a;color:#fff;font-size:12px}.billing-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:13px}.billing-grid .full{grid-column:1/-1}.billing-customer-row{display:flex;gap:8px}.billing-customer-row select{flex:1}.billing-item-wrap{overflow:auto;border:1px solid #e1e7ed;border-radius:7px}.invoice-editor{width:100%;min-width:920px;border-collapse:collapse}.invoice-editor th{background:#f1f5f9;color:#475569;font-size:10px;text-transform:uppercase;padding:9px;text-align:left;white-space:nowrap}.invoice-editor td{border-top:1px solid #e8edf2;padding:6px}.invoice-editor input,.invoice-editor select{width:100%;min-width:60px;padding:8px 7px;border:1px solid #d1d9e2;border-radius:6px;background:#fff}.invoice-editor .hsn,.invoice-editor .unit,.invoice-editor .gst{background:#f8fafc;color:#475569}.invoice-editor .taxable,.invoice-editor .amt{white-space:nowrap;font-size:12px}.remove-line{border:0;background:#fee2e2;color:#dc2626;border-radius:6px;width:30px;height:30px;cursor:pointer}.add-line-btn{margin-top:10px}.billing-bottom{display:grid;grid-template-columns:1.4fr .8fr;gap:14px}.billing-left{min-width:0}.billing-textarea{width:100%;resize:vertical;border:1px solid #cbd5e1;border-radius:7px;padding:10px;line-height:1.5}.billing-totals{background:#fff;border:1px solid #e1e7ed;border-radius:9px;padding:16px;margin-top:14px;align-self:start}.total-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;color:#475569;font-size:13px}.round-input{width:72px;padding:5px;border:1px solid #cbd5e1;border-radius:5px;margin-left:5px}.grand-total{display:flex;justify-content:space-between;border-top:2px solid #15304a;margin-top:8px;padding-top:12px;color:#15304a;font-size:18px}.billing-print-options{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:#fff;border:1px solid #e1e7ed;border-radius:9px;padding:12px 14px;margin-top:14px;font-size:12px;color:#475569}.billing-print-options label{display:flex;align-items:center;gap:5px}.billing-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid #e1e7ed}.billing-preview{padding:4px}.billing-preview-head{display:flex;justify-content:space-between;align-items:flex-start}.billing-preview-head h2{margin:3px 0}.preview-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0}.preview-summary>div{background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;padding:10px}.preview-summary span{display:block;color:#64748b;font-size:11px}.preview-summary b{display:block;color:#15304a;margin-top:4px}.billing-table .actions{white-space:nowrap}
+@media(max-width:900px){.billing-kpis{grid-template-columns:repeat(2,1fr)}.billing-bottom{grid-template-columns:1fr}}
+@media(max-width:650px){.billing-head{align-items:flex-start;flex-direction:column}.billing-list-head{align-items:stretch;flex-direction:column}.billing-search{width:100%}.billing-kpis{grid-template-columns:1fr 1fr}.billing-grid{grid-template-columns:1fr}.billing-grid .full{grid-column:auto}.billing-customer-row{flex-direction:column}.billing-actions{flex-wrap:wrap}.preview-summary{grid-template-columns:1fr}.billing-modal-head{position:static}}
+
+
+/* JARVESH ERP - Full Screen Billing */
+.billing-modal{width:100%;max-width:none;min-height:calc(100vh - 32px);box-sizing:border-box}
+.billing-modal-head{position:sticky;top:0;z-index:5;background:#fff;padding:8px 0 14px}
+.billing-item-wrap{overflow-x:auto}
+.invoice-editor{min-width:1050px;width:100%}
+.billing-section{margin-top:14px}
+@media(min-width:901px){#modal{padding:8px!important}.modalbox{width:min(98vw,1600px)!important;max-width:none!important;max-height:96vh!important;overflow:auto!important}}
+</style>
+</head>
+<body>
+
+<!-- JARVESH ERP Login Screen -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-box">
+    <div class="login-logo">JARVESH</div>
+    <div class="login-subtitle">ERP Management System</div>
+    <form onsubmit="loginUser(event)">
+      <div class="login-field">
+        <label>Username</label>
+        <input type="text" id="loginUsername" placeholder="Enter username" autocomplete="username" required>
+      </div>
+      <div class="login-field">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="Enter password" autocomplete="current-password" required>
+      </div>
+      <label class="remember">
+        <input type="checkbox" id="rememberMe">
+        Remember me
+      </label>
+      <button class="login-btn" type="submit">Login</button>
+      <div id="loginError" class="login-error" role="alert"></div>
+    </form>
+    <div class="login-footer">© 2026 JARVESH ERP</div>
+  </div>
+</div>
+<div class="app">
+<aside class="sidebar">
+<div class="logo">JARVESH ERP</div>
+<button class="nav active" data-page="dashboard">📊 Dashboard</button>
+<button class="nav" data-page="customers">👥 Customers</button>
+<button class="nav" data-page="suppliers">🏢 Suppliers</button>
+<button class="nav" data-page="items">📦 Items / Products</button>
+<button class="nav" data-page="invoices">🧾 Sales Invoices</button>
+<button class="nav" data-page="purchases">🛒 Purchases</button>
+<button class="nav" data-page="payments">💰 Payments</button>
+<button class="nav" data-page="receipts">💵 Receipts</button>
+<button class="nav" data-page="ledger">📒 Ledger</button>
+<button class="nav" data-page="stock">📦 Stock</button>
+<button class="nav" data-page="reports">📈 Reports</button>
+<button class="nav" data-page="settings">⚙️ Settings</button>
+<button class="nav" type="button" onclick="logoutUser()">
+    🚪 Logout
+</button>
+</aside>
+<main class="main">
+<header class="top"><strong id="topTitle">Dashboard</strong><span class="muted">Accounting ERP</span></header>
+<section class="page" id="content"></section>
+</main>
+</div>
+
+<div class="modal" id="modal"><div class="modalbox" id="modalBox"></div></div>
+
+<script>
+
+
+// Simple browser login for the standalone prototype.
+const LOGIN_KEY = 'jarvesh_login';
+
+function checkLogin(){
+  const loggedIn = localStorage.getItem(LOGIN_KEY);
+  const screen = document.getElementById('loginScreen');
+  if(screen) screen.style.display = loggedIn === 'true' ? 'none' : 'flex';
+}
+
+function loginUser(e){
+  e.preventDefault();
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const error = document.getElementById('loginError');
+
+  // Demo credentials for this standalone HTML version.
+  if(username === 'KASHYAP' && password === '7210'){
+    localStorage.setItem(LOGIN_KEY,'true');
+    document.getElementById('loginScreen').style.display='none';
+    error.textContent='';
+  }else{
+    error.textContent='Invalid username or password';
+  }
+}
+
+function logoutUser(){
+  localStorage.removeItem(LOGIN_KEY);
+  location.reload();
+}
+
+const KEY='jarvesh_real_erp_v1';
+let db=JSON.parse(localStorage.getItem(KEY)||'null')||{
+ customers:[],suppliers:[],items:[],invoices:[],purchases:[],payments:[],receipts:[],settings:{companyName:'My Business',gstin:'',address:'',phone:'',email:'',warranty:'Warranty: 12 months from the invoice date against manufacturing defects.',footer:'Thank you for your business.'}
+};
+function save(){localStorage.setItem(KEY,JSON.stringify(db))}
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function money(n){return '₹ '+Number(n||0).toFixed(2)}
+function uid(p){return p+Date.now()+Math.random().toString(36).slice(2,6)}
+function empty(msg){return `<div class="empty">${msg}</div>`}
+function openModal(html){modal.innerHTML=`<div class="modalbox">${html}</div>`;modal.classList.add('show')}
+function closeModal(){modal.classList.remove('show')}
+modal.addEventListener('click',e=>{if(e.target===modal)closeModal()})
+
+document.querySelectorAll('.nav[data-page]').forEach(b=>{
+    b.addEventListener('click',()=>{
+        showPage(b.dataset.page);
+    });
+});
+function showPage(p){
+ document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
+ topTitle.textContent=p==='items'?'Items / Products':p.charAt(0).toUpperCase()+p.slice(1);
+ ({dashboard,customers,suppliers,items,invoices,purchases,payments,receipts,ledger,stock,reports,settings}[p])();
+}
+
+function dashboard(){
+let sales=db.invoices.reduce((a,x)=>a+x.total,0), pur=db.purchases.reduce((a,x)=>a+x.total,0);
+content.innerHTML=`<div class="title">Dashboard</div><div class="muted">Your ERP starts empty. Create your master data first.</div>
+<div class="grid" style="margin-top:20px">
+<div class="card stat">Customers<b>${db.customers.length}</b></div><div class="card stat">Items<b>${db.items.length}</b></div>
+<div class="card stat">Sales<b>${money(sales)}</b></div><div class="card stat">Purchases<b>${money(pur)}</b></div></div>
+<div class="card" style="margin-top:18px"><h3>Quick Start</h3>
+<p>1. Create Customers → 2. Create Items → 3. Create Sales Invoice → 4. Save Invoice.</p>
+<div class="actions"><button class="btn" onclick="showPage('customers');setTimeout(addCustomer,50)">+ Add Customer</button><button class="btn success" onclick="showPage('items');setTimeout(addItem,50)">+ Add Item</button><button class="btn" onclick="showPage('invoices');setTimeout(addInvoice,50)">+ New Invoice</button></div></div>`;
+}
+
+function customers(){
+content.innerHTML=`<div class="title">Customers</div><div class="toolbar"><div class="muted">Create and manage your actual customers.</div><button class="btn" onclick="addCustomer()">+ Add Customer</button></div>
+<div class="card"><div class="tablewrap"><table class="table"><thead><tr><th>Name</th><th>Mobile</th><th>GSTIN</th><th>City/State</th><th>Opening Balance</th><th>Actions</th></tr></thead><tbody>
+${db.customers.length?db.customers.map(c=>`<tr><td><b>${esc(c.name)}</b></td><td>${esc(c.mobile)}</td><td>${esc(c.gstin)}</td><td>${esc(c.state)}</td><td>${money(c.opening)}</td><td><div class="actions"><button class="btn secondary" onclick="addCustomer('${c.id}')">Edit</button><button class="btn danger" onclick="delCustomer('${c.id}')">Delete</button></div></td></tr>`).join(''): `<tr><td colspan="6">${empty('No customers yet. Click “+ Add Customer”.')}</td></tr>`}
+</tbody></table></div></div>`;
+}
+function addCustomer(id){
+let c=db.customers.find(x=>x.id===id)||{name:'',mobile:'',email:'',gstin:'',address:'',state:'',opening:0,credit:0};
+openModal(`<div class="modalhead"><h2>${id?'Edit':'Add'} Customer</h2><button class="close" onclick="closeModal()">×</button></div>
+<form onsubmit="saveCustomer(event,'${id||''}')"><div class="formgrid">
+<div class="field"><label>Customer Name *</label><input name="name" required value="${esc(c.name)}"></div>
+<div class="field"><label>Mobile</label><input name="mobile" value="${esc(c.mobile)}"></div>
+<div class="field"><label>Email</label><input type="email" name="email" value="${esc(c.email)}"></div>
+<div class="field"><label>GSTIN</label><input name="gstin" value="${esc(c.gstin)}"></div>
+<div class="field"><label>State</label><input name="state" value="${esc(c.state)}"></div>
+<div class="field"><label>Opening Balance</label><input type="number" step="0.01" name="opening" value="${c.opening}"></div>
+<div class="field"><label>Credit Limit</label><input type="number" step="0.01" name="credit" value="${c.credit}"></div>
+<div class="field full"><label>Address</label><textarea name="address">${esc(c.address)}</textarea></div></div>
+<div class="toolbar"><button type="button" class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn">Save Customer</button></div></form>`);
+}
+function saveCustomer(e,id){e.preventDefault();let f=new FormData(e.target),o=Object.fromEntries(f);o.opening=+o.opening||0;o.credit=+o.credit||0;
+if(id) Object.assign(db.customers.find(x=>x.id===id),o);else db.customers.push({id:uid('C'),...o});save();closeModal();customers();}
+function delCustomer(id){if(confirm('Delete this customer?')){db.customers=db.customers.filter(x=>x.id!==id);save();customers()}}
+
+function suppliers(){
+content.innerHTML=`<div class="title">Suppliers</div><div class="toolbar"><div class="muted">Create suppliers for purchase entries.</div><button class="btn" onclick="addSupplier()">+ Add Supplier</button></div>
+<div class="card"><div class="tablewrap"><table class="table"><thead><tr><th>Name</th><th>Mobile</th><th>GSTIN</th><th>State</th><th>Actions</th></tr></thead><tbody>
+${db.suppliers.length?db.suppliers.map(s=>`<tr><td><b>${esc(s.name)}</b></td><td>${esc(s.mobile)}</td><td>${esc(s.gstin)}</td><td>${esc(s.state)}</td><td><button class="btn secondary" onclick="addSupplier('${s.id}')">Edit</button> <button class="btn danger" onclick="delSupplier('${s.id}')">Delete</button></td></tr>`).join(''):`<tr><td colspan="5">${empty('No suppliers yet. Click “+ Add Supplier”.')}</td></tr>`}
+</tbody></table></div></div>`;
+}
+function addSupplier(id){let s=db.suppliers.find(x=>x.id===id)||{name:'',mobile:'',gstin:'',state:'',address:''};
+openModal(`<div class="modalhead"><h2>${id?'Edit':'Add'} Supplier</h2><button class="close" onclick="closeModal()">×</button></div><form onsubmit="saveSupplier(event,'${id||''}')"><div class="formgrid">
+<div class="field"><label>Supplier Name *</label><input required name="name" value="${esc(s.name)}"></div><div class="field"><label>Mobile</label><input name="mobile" value="${esc(s.mobile)}"></div>
+<div class="field"><label>GSTIN</label><input name="gstin" value="${esc(s.gstin)}"></div><div class="field"><label>State</label><input name="state" value="${esc(s.state)}"></div>
+<div class="field full"><label>Address</label><textarea name="address">${esc(s.address)}</textarea></div></div><div class="toolbar"><button type="button" class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn">Save Supplier</button></div></form>`);
+}
+function saveSupplier(e,id){e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(id)Object.assign(db.suppliers.find(x=>x.id===id),o);else db.suppliers.push({id:uid('S'),...o});save();closeModal();suppliers()}
+function delSupplier(id){if(confirm('Delete this supplier?')){db.suppliers=db.suppliers.filter(x=>x.id!==id);save();suppliers()}}
+
+function items(){
+content.innerHTML=`<div class="title">Items / Products</div><div class="toolbar"><div class="muted">Create your products. Saved items appear automatically in invoices.</div><button class="btn success" onclick="addItem()">+ Add Item</button></div>
+<div class="card"><div class="tablewrap"><table class="table"><thead><tr><th>Item Name</th><th>Code</th><th>HSN</th><th>Unit</th><th>Purchase Rate</th><th>Sales Rate</th><th>GST %</th><th>Stock</th><th>Actions</th></tr></thead><tbody>
+${db.items.length?db.items.map(i=>`<tr><td><b>${esc(i.name)}</b></td><td>${esc(i.code)}</td><td>${esc(i.hsn)}</td><td>${esc(i.unit)}</td><td>${money(i.purchase)}</td><td>${money(i.sales)}</td><td>${i.gst}%</td><td>${i.stock}</td><td><button class="btn secondary" onclick="addItem('${i.id}')">Edit</button> <button class="btn danger" onclick="delItem('${i.id}')">Delete</button></td></tr>`).join(''):`<tr><td colspan="9">${empty('No items yet. Click “+ Add Item”.')}</td></tr>`}
+</tbody></table></div></div>`;
+}
+function addItem(id){let i=db.items.find(x=>x.id===id)||{name:'',code:'',hsn:'',unit:'Nos',purchase:0,sales:0,gst:0,stock:0,min:0};
+openModal(`<div class="modalhead"><h2>${id?'Edit':'Add'} Item</h2><button class="close" onclick="closeModal()">×</button></div><form onsubmit="saveItem(event,'${id||''}')"><div class="formgrid">
+<div class="field"><label>Item Name *</label><input required name="name" value="${esc(i.name)}"></div><div class="field"><label>Item Code</label><input name="code" value="${esc(i.code)}"></div>
+<div class="field"><label>HSN/SAC</label><input name="hsn" value="${esc(i.hsn)}"></div><div class="field"><label>Unit</label><input name="unit" value="${esc(i.unit)}"></div>
+<div class="field"><label>Purchase Rate</label><input type="number" step="0.01" name="purchase" value="${i.purchase}"></div><div class="field"><label>Sales Rate *</label><input type="number" step="0.01" name="sales" value="${i.sales}" required></div>
+<div class="field"><label>GST %</label><select name="gst">${[0,5,12,18,28].map(x=>`<option ${+i.gst===x?'selected':''}>${x}</option>`).join('')}</select></div>
+<div class="field"><label>Opening Stock</label><input type="number" step="0.01" name="stock" value="${i.stock}"></div>
+<div class="field"><label>Minimum Stock</label><input type="number" step="0.01" name="min" value="${i.min}"></div></div>
+<div class="toolbar"><button type="button" class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn success">Save Item</button></div></form>`);
+}
+function saveItem(e,id){e.preventDefault();let o=Object.fromEntries(new FormData(e.target));['purchase','sales','gst','stock','min'].forEach(k=>o[k]=+o[k]||0);
+if(id)Object.assign(db.items.find(x=>x.id===id),o);else db.items.push({id:uid('I'),...o});save();closeModal();items()}
+function delItem(id){if(confirm('Delete this item?')){db.items=db.items.filter(x=>x.id!==id);save();items()}}
+
+function invoices(){
+let total=db.invoices.reduce((a,x)=>a+(+x.total||0),0);
+content.innerHTML=`
+<div class="billing-head">
+  <div><div class="title">Sales Billing</div><div class="muted">Professional invoice creation, GST calculation and print-ready billing.</div></div>
+  <button class="btn billing-primary" onclick="addInvoice()">＋ Create Invoice</button>
+</div>
+<div class="billing-kpis">
+  <div class="billing-kpi"><span>Invoices</span><b>${db.invoices.length}</b></div>
+  <div class="billing-kpi"><span>Total Billing</span><b>${money(total)}</b></div>
+  <div class="billing-kpi"><span>Customers</span><b>${db.customers.length}</b></div>
+  <div class="billing-kpi"><span>Products</span><b>${db.items.length}</b></div>
+</div>
+<div class="billing-list card">
+  <div class="billing-list-head"><div><h3 style="margin:0">Invoice List</h3><span class="muted">Customer, invoice number, date and total</span></div><input id="invoiceSearch" class="billing-search" placeholder="Search invoice / customer..." oninput="filterInvoiceList()"></div>
+  <div class="tablewrap"><table class="table billing-table"><thead><tr><th>Customer</th><th>Invoice No.</th><th>Date</th><th>Items</th><th>Total</th><th>Actions</th></tr></thead><tbody id="invoiceListBody">${invoiceRows()}</tbody></table></div>
+</div>`;
+}
+function invoiceRows(filter=''){
+let q=String(filter||'').toLowerCase();
+let arr=db.invoices.filter(x=>{let c=db.customers.find(c=>c.id===x.customerId);return !q||String(x.no).toLowerCase().includes(q)||String(c?.name||'').toLowerCase().includes(q)});
+return arr.length?arr.map(x=>{let c=db.customers.find(c=>c.id===x.customerId);return `<tr><td><b>${esc(c?.name||'Deleted Customer')}</b><small>${esc(c?.mobile||'')}</small></td><td><span class="invoice-no">${esc(x.no)}</span></td><td>${esc(x.date)}</td><td>${x.lines?.length||0}</td><td><b>${money(x.total)}</b></td><td><div class="actions"><button class="btn secondary" onclick="openInvoicePreview('${x.id}')">Preview</button><button class="btn" onclick="printInvoice('${x.id}')">Print</button><button class="btn danger" onclick="delInvoice('${x.id}')">Delete</button></div></td></tr>`}).join(''):`<tr><td colspan="6">${empty('No invoices found. Click “Create Invoice” to start billing.')}</td></tr>`;
+}
+function filterInvoiceList(){let el=document.getElementById('invoiceSearch');let body=document.getElementById('invoiceListBody');if(el&&body)body.innerHTML=invoiceRows(el.value)}
+function addInvoice(){
+if(!db.customers.length){alert('First create at least one Customer / Ledger.');return}
+if(!db.items.length){alert('First create at least one Item / Product.');return}
+let no='INV-'+String(db.invoices.length+1).padStart(4,'0'),date=new Date().toISOString().slice(0,10);
+let customerOptions=db.customers.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.name)+(c.mobile?' — '+esc(c.mobile):'')+'</option>').join('');
+let html=''
++'<div class="billing-modal">'
++'<div class="billing-modal-head"><div><div class="billing-eyebrow">SALES BILLING</div><h2>Create Invoice</h2><span class="muted">Enter billing details, items and GST information.</span></div><button class="close" onclick="closeModal()">×</button></div>'
++'<form id="invoiceForm" onsubmit="saveInvoice(event)">'
++'<div class="billing-section"><div class="section-title"><span>1</span>Invoice Details</div><div class="billing-grid">'
++'<div class="field"><label>Invoice No.</label><input name="no" value="'+esc(no)+'" required></div>'
++'<div class="field"><label>Invoice Date</label><input type="date" name="date" value="'+date+'" required></div>'
++'<div class="field"><label>GST Type</label><select name="taxMode" id="invoiceTaxMode" onchange="calcInvoice()"><option value="local">Local — CGST + SGST</option><option value="interstate">Interstate — IGST</option></select></div>'
++'<div class="field"><label>Payment Mode</label><select name="paymentMode"><option>Cash</option><option>Bank</option><option>UPI</option><option>Credit</option><option>Cheque</option></select></div>'
++'<div class="field full"><label>Customer / Ledger *</label><div class="billing-customer-row"><select name="customerId" id="invoiceCustomer" required>'+customerOptions+'</select><button type="button" class="btn secondary" onclick="quickCustomer()">＋ Ledger</button></div></div>'
++'<div class="field full"><label>Place of Supply</label><input name="placeOfSupply" placeholder="e.g. Gujarat"></div>'
++'</div></div>'
++'<div class="billing-section"><div class="section-title"><span>2</span>Invoice Items</div>'
++'<div class="billing-item-wrap"><table class="invoice-editor"><thead><tr><th style="min-width:190px">Item</th><th>HSN/SAC</th><th>Unit</th><th>Qty</th><th>Rate</th><th>Disc %</th><th>GST %</th><th>Taxable</th><th>Amount</th><th></th></tr></thead><tbody id="invoiceLines"></tbody></table></div>'
++'<button type="button" class="btn secondary add-line-btn" onclick="addInvoiceLine()">＋ Add Item</button></div>'
++'<div class="billing-bottom"><div class="billing-left">'
++'<div class="billing-section"><div class="section-title"><span>3</span>Terms & Conditions</div><textarea name="terms" class="billing-textarea" rows="4">'+esc(db.settings.terms||'Goods once sold will not be taken back. Subject to standard business terms.')+'</textarea></div>'
++'<div class="billing-section"><div class="section-title"><span>4</span>Warranty / Notes</div><textarea name="warranty" class="billing-textarea" rows="3">'+esc(db.settings.warranty||'Warranty: 12 months from the invoice date against manufacturing defects.')+'</textarea></div>'
++'</div><div class="billing-totals">'
++'<div class="total-row"><span>Taxable Amount</span><b id="subTotal">₹ 0.00</b></div><div class="total-row"><span>Discount</span><b id="discountTotal">₹ 0.00</b></div><div class="total-row"><span>CGST</span><b id="cgstTotal">₹ 0.00</b></div><div class="total-row"><span>SGST</span><b id="sgstTotal">₹ 0.00</b></div><div class="total-row"><span>IGST</span><b id="igstTotal">₹ 0.00</b></div>'
++'<div class="total-row"><span>Round Off <input class="round-input" type="number" step="0.01" name="roundOff" id="roundOff" value="0" oninput="calcInvoice()"></span><b id="roundValue">₹ 0.00</b></div>'
++'<div class="grand-total"><span>Grand Total</span><b id="grandTotal">₹ 0.00</b></div></div></div>'
++'<div class="billing-print-options"><b>Print Options</b><label><input type="checkbox" name="printSr" checked> Item Sr No.</label><label><input type="checkbox" name="printTax" checked> Item-wise Tax</label><label><input type="checkbox" name="printUnit" checked> Item Unit</label><label><input type="checkbox" name="printHSN" checked> HSN</label><label><input type="checkbox" name="printGSTSummary" checked> GST Summary</label><label><input type="checkbox" name="printAmount" checked> Amount Details</label></div>'
++'<div class="billing-actions"><button type="button" class="btn secondary" onclick="closeModal()">Cancel</button><button type="submit" class="btn" data-print="0">Save Invoice</button><button type="submit" class="btn success" data-print="1">Save & Print</button></div></form></div>';
+openModal(html);addInvoiceLine();addInvoiceLine();calcInvoice();
+}
+function addInvoiceLine(){
+let tr=document.createElement('tr');tr.innerHTML=`<td><select class="li">${db.items.map(i=>`<option value="${i.id}">${esc(i.name)}</option>`).join('')}</select></td><td><input class="hsn" readonly></td><td><input class="unit" readonly></td><td><input class="qty" type="number" min=".01" step=".01" value="1"></td><td><input class="rate" type="number" min="0" step=".01"></td><td><input class="disc" type="number" min="0" max="100" step=".01" value="0"></td><td><input class="gst" readonly></td><td class="taxable">₹ 0.00</td><td class="amt">₹ 0.00</td><td><button type="button" class="remove-line" onclick="this.closest('tr').remove();calcInvoice()">×</button></td>`;
+document.getElementById('invoiceLines').appendChild(tr);tr.querySelector('.li').onchange=()=>fillLine(tr);tr.querySelector('.qty').oninput=()=>calcInvoice();tr.querySelector('.rate').oninput=()=>calcInvoice();tr.querySelector('.disc').oninput=()=>calcInvoice();fillLine(tr);
+}
+function fillLine(tr){let i=db.items.find(x=>x.id===tr.querySelector('.li').value);tr.querySelector('.hsn').value=i?.hsn||'';tr.querySelector('.unit').value=i?.unit||'Nos';tr.querySelector('.rate').value=i?.sales||0;tr.querySelector('.gst').value=i?.gst||0;calcInvoice()}
+function calcInvoice(){
+let sub=0,discount=0,cgst=0,sgst=0,igst=0;let mode=document.getElementById('invoiceTaxMode')?.value||'local';
+document.querySelectorAll('#invoiceLines tr').forEach(tr=>{let q=+tr.querySelector('.qty').value||0,r=+tr.querySelector('.rate').value||0,d=Math.min(100,Math.max(0,+tr.querySelector('.disc').value||0)),g=+tr.querySelector('.gst').value||0;let gross=q*r,discAmt=gross*d/100,taxable=gross-discAmt,tax=taxable*g/100;sub+=taxable;discount+=discAmt;if(mode==='local'){cgst+=tax/2;sgst+=tax/2}else igst+=tax;tr.querySelector('.taxable').textContent=money(taxable);tr.querySelector('.amt').textContent=money(taxable+tax)});
+let round=+document.getElementById('roundOff')?.value||0;let total=sub+cgst+sgst+igst+round;document.getElementById('subTotal').textContent=money(sub);document.getElementById('discountTotal').textContent=money(discount);document.getElementById('cgstTotal').textContent=money(cgst);document.getElementById('sgstTotal').textContent=money(sgst);document.getElementById('igstTotal').textContent=money(igst);document.getElementById('roundValue').textContent=money(round);document.getElementById('grandTotal').textContent=money(total);return{sub,discount,cgst,sgst,igst,round,total};
+}
+function saveInvoice(e){
+e.preventDefault();let f=new FormData(e.target),lines=[];document.querySelectorAll('#invoiceLines tr').forEach(tr=>{let item=db.items.find(i=>i.id===tr.querySelector('.li').value),q=+tr.querySelector('.qty').value||0,r=+tr.querySelector('.rate').value||0,g=+tr.querySelector('.gst').value||0,d=Math.min(100,Math.max(0,+tr.querySelector('.disc').value||0));if(item&&q>0){let gross=q*r,discAmt=gross*d/100,taxable=gross-discAmt;lines.push({itemId:item.id,qty:q,rate:r,gst:g,discount:d,discountAmount:discAmt,taxable,amount:taxable});}});
+if(!lines.length){alert('Add at least one item.');return}let t=calcInvoice();let printOptions={sr:f.get('printSr')==='on',tax:f.get('printTax')==='on',unit:f.get('printUnit')==='on',hsn:f.get('printHSN')==='on',gstSummary:f.get('printGSTSummary')==='on',amount:f.get('printAmount')==='on'};let invoice={id:uid('V'),no:f.get('no'),date:f.get('date'),customerId:f.get('customerId'),taxMode:f.get('taxMode'),paymentMode:f.get('paymentMode'),placeOfSupply:f.get('placeOfSupply')||'',warranty:f.get('warranty')||'',terms:f.get('terms')||'',lines,total:t.total,subtotal:t.sub,discountTotal:t.discount,cgst:t.cgst,sgst:t.sgst,igst:t.igst,roundOff:t.round, gstTotal:t.cgst+t.sgst+t.igst,printOptions};db.invoices.push(invoice);lines.forEach(l=>{let i=db.items.find(x=>x.id===l.itemId);if(i)i.stock-=l.qty});save();let shouldPrint=e.submitter?.dataset?.print==='1';closeModal();invoices();if(shouldPrint)setTimeout(()=>printInvoice(invoice.id),150);
+}
+function delInvoice(id){if(confirm('Delete this invoice? Stock will be restored.')){let x=db.invoices.find(v=>v.id===id);x?.lines?.forEach(l=>{let i=db.items.find(i=>i.id===l.itemId);if(i)i.stock+=l.qty});db.invoices=db.invoices.filter(v=>v.id!==id);save();invoices()}}
+function quickCustomer(){
+openModal(`<div class="modalhead"><h2>Create Customer / Ledger</h2><button class="close" onclick="closeModal()">×</button></div><form onsubmit="saveQuickCustomer(event)"><div class="formgrid"><div class="field"><label>Name *</label><input name="name" required></div><div class="field"><label>Mobile</label><input name="mobile"></div><div class="field"><label>GSTIN</label><input name="gstin"></div><div class="field"><label>State</label><input name="state"></div><div class="field full"><label>Address</label><textarea name="address" rows="2"></textarea></div></div><div class="toolbar"><button type="button" class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn success">Create & Select</button></div></form>`)
+}
+function saveQuickCustomer(e){e.preventDefault();let o=Object.fromEntries(new FormData(e.target));let c={id:uid('C'),name:o.name,mobile:o.mobile,email:'',gstin:o.gstin,state:o.state,opening:0,credit:0,address:o.address};db.customers.push(c);save();closeModal();let sel=document.querySelector('#invoiceCustomer');if(sel){sel.innerHTML=db.customers.map(c=>`<option value="${c.id}">${esc(c.name)}${c.mobile?' — '+esc(c.mobile):''}</option>`).join('');sel.value=c.id;}else addInvoice()}
+function openInvoicePreview(id){let x=db.invoices.find(v=>v.id===id);if(!x)return;let c=db.customers.find(c=>c.id===x.customerId);openModal(`<div class="billing-preview"><div class="billing-preview-head"><div><div class="billing-eyebrow">INVOICE PREVIEW</div><h2>${esc(x.no)}</h2><span class="muted">${esc(c?.name||'')} · ${esc(x.date)}</span></div><button class="close" onclick="closeModal()">×</button></div><div class="preview-summary"><div><span>Taxable</span><b>${money(x.subtotal)}</b></div><div><span>GST</span><b>${money(x.gstTotal)}</b></div><div><span>Grand Total</span><b>${money(x.total)}</b></div></div><div class="tablewrap"><table class="table"><thead><tr><th>Item</th><th>Qty</th><th>Rate</th><th>GST</th><th>Amount</th></tr></thead><tbody>${x.lines.map(l=>{let i=db.items.find(i=>i.id===l.itemId);let tax=l.taxable*l.gst/100;return `<tr><td>${esc(i?.name||'')}</td><td>${l.qty}</td><td>${money(l.rate)}</td><td>${l.gst}%</td><td>${money(l.taxable+tax)}</td></tr>`}).join('')}</tbody></table></div><div class="billing-actions"><button class="btn secondary" onclick="closeModal()">Close</button><button class="btn" onclick="closeModal();printInvoice('${x.id}')">Print Invoice</button></div></div>`)}
+function printInvoice(id){let x=db.invoices.find(v=>v.id===id),c=db.customers.find(c=>c.id===x.customerId),st=db.settings||{},opt=x.printOptions||{sr:true,tax:true,unit:true,hsn:true,gstSummary:true,amount:true};let rows=x.lines.map((l,n)=>{let i=db.items.find(i=>i.id===l.itemId);let tax=l.taxable*l.gst/100;return `<tr>${opt.sr?`<td>${n+1}</td>`:''}<td><b>${esc(i?.name||'')}</b></td>${opt.hsn?`<td>${esc(i?.hsn||'-')}</td>`:''}${opt.unit?`<td>${esc(i?.unit||'-')}</td>`:''}<td>${l.qty}</td><td>${money(l.rate)}</td>${opt.tax?`<td>${l.gst}%</td>`:''}<td>${money(l.taxable+tax)}</td></tr>`}).join('');let head=(opt.sr?'<th>#</th>':'')+'<th>Description</th>'+(opt.hsn?'<th>HSN/SAC</th>':'')+(opt.unit?'<th>Unit</th>':'')+'<th>Qty</th><th>Rate</th>'+(opt.tax?'<th>GST</th>':'')+'<th>Amount</th>';let w=open('','_blank');w.document.write(`<!doctype html><html><head><title>${esc(x.no)}</title><style>@page{size:A4;margin:10mm}*{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#17212b;margin:0;background:#eef2f6}.sheet{width:210mm;min-height:297mm;margin:16px auto;background:#fff;padding:12mm;box-shadow:0 3px 18px #0002}.topline{height:5px;background:#1f628e;margin:-12mm -12mm 20px}.head{display:flex;justify-content:space-between;gap:20px;border-bottom:1px solid #d8e0e8;padding-bottom:15px}.brand h1{margin:0 0 6px;font-size:25px;color:#15304a}.muted{color:#667085;font-size:11px;line-height:1.55}.inv{min-width:185px;text-align:right;border:1px solid #dbe2e9;border-radius:7px;padding:11px}.inv h2{margin:0 0 6px;color:#bf5700;font-size:18px}.boxes{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:15px 0}.box{border:1px solid #dbe2e9;border-radius:7px;padding:11px;min-height:80px}.box h4{margin:0 0 7px;color:#15304a;font-size:10px;text-transform:uppercase}.table{width:100%;border-collapse:collapse}.table th{background:#15304a;color:#fff;font-size:10px;text-transform:uppercase}.table th,.table td{border:1px solid #dbe2e9;padding:7px;font-size:10.5px}.right{text-align:right}.summary{margin:14px 0 0 auto;width:290px}.sr{display:flex;justify-content:space-between;padding:5px 0}.grand{border-top:2px solid #15304a;margin-top:5px;padding-top:8px;font-size:15px;font-weight:800}.terms{margin-top:18px;border:1px solid #dbe2e9;border-radius:7px;padding:10px;background:#f8fafc}.terms h4{margin:0 0 5px;color:#15304a;font-size:11px}.warranty{margin-top:10px;border-left:4px solid #bf5700;background:#fff8f2;padding:10px;border-radius:4px}.sign{margin-top:38px;display:flex;justify-content:flex-end}.signbox{text-align:center;width:180px;border-top:1px solid #999;padding-top:7px;font-size:11px}.footer{margin-top:22px;border-top:1px solid #ddd;padding-top:9px;text-align:center;font-size:10px;color:#667085}@media print{body{background:#fff}.sheet{margin:0;box-shadow:none;width:auto;min-height:auto}.topline{print-color-adjust:exact;-webkit-print-color-adjust:exact}.table th{print-color-adjust:exact;-webkit-print-color-adjust:exact}} </style></head><body><div class="sheet"><div class="topline"></div><div class="head"><div class="brand"><h1>${esc(st.companyName||'My Business')}</h1><div class="muted">${esc(st.address||'')}<br>${st.phone?'Phone: '+esc(st.phone):''} ${st.email?' | Email: '+esc(st.email):''}<br>${st.gstin?'GSTIN: '+esc(st.gstin):''}</div></div><div class="inv"><h2>TAX INVOICE</h2><b>${esc(x.no)}</b><br><span class="muted">Date: ${esc(x.date)}</span><br><span class="muted">Payment: ${esc(x.paymentMode||'')}</span></div></div><div class="boxes"><div class="box"><h4>Bill To</h4><b>${esc(c?.name||'')}</b><div class="muted">${esc(c?.address||'')}<br>GSTIN: ${esc(c?.gstin||'-')}<br>Mobile: ${esc(c?.mobile||'-')}</div></div><div class="box"><h4>Invoice Summary</h4><div class="muted">Place of Supply: ${esc(x.placeOfSupply||c?.state||'-')}<br>GST Type: ${x.taxMode==='interstate'?'IGST':'CGST + SGST'}<br>Items: ${x.lines.length}</div></div></div><table class="table"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table>${opt.amount?`<div class="summary"><div class="sr"><span>Taxable Amount</span><b>${money(x.subtotal)}</b></div><div class="sr"><span>Discount</span><b>${money(x.discountTotal||0)}</b></div>${opt.gstSummary?`<div class="sr"><span>CGST</span><b>${money(x.cgst||0)}</b></div><div class="sr"><span>SGST</span><b>${money(x.sgst||0)}</b></div><div class="sr"><span>IGST</span><b>${money(x.igst||0)}</b></div>`:''}<div class="sr"><span>Round Off</span><b>${money(x.roundOff||0)}</b></div><div class="sr grand"><span>Grand Total</span><b>${money(x.total)}</b></div></div>`:''}${x.terms?`<div class="terms"><h4>Terms & Conditions</h4><div class="muted">${esc(x.terms).replace(/\n/g,'<br>')}</div></div>`:''}<div class="warranty"><b>Warranty / Notes</b><br><span class="muted">${esc(x.warranty||st.warranty||'Warranty as per standard terms.').replace(/\n/g,'<br>')}</span></div><div class="sign"><div class="signbox">Authorized Signatory</div></div><div class="footer">${esc(st.footer||'Thank you for your business.')}</div></div><script>window.onload=()=>print()<\/script></body></html>`);w.document.close()}
+
+
+function purchases(){content.innerHTML=`<div class="title">Purchases</div><div class="toolbar"><div class="muted">Purchase module.</div><button class="btn" onclick="addPurchase()">+ New Purchase</button></div><div class="card"><table class="table"><thead><tr><th>Purchase No.</th><th>Date</th><th>Supplier</th><th>Total</th></tr></thead><tbody>${db.purchases.length?db.purchases.map(p=>`<tr><td>${p.no}</td><td>${p.date}</td><td>${esc(db.suppliers.find(s=>s.id===p.supplierId)?.name||'')}</td><td>${money(p.total)}</td></tr>`).join(''):`<tr><td colspan="4">${empty('No purchases yet.')}</td></tr>`}</tbody></table></div>`}
+function addPurchase(){if(!db.suppliers.length){alert('First create a Supplier.');return}if(!db.items.length){alert('First create an Item.');return}
+openModal(`<div class="modalhead"><h2>New Purchase</h2><button class="close" onclick="closeModal()">×</button></div><form onsubmit="savePurchase(event)"><div class="formgrid"><div class="field"><label>Purchase No.</label><input name="no" value="PUR-${String(db.purchases.length+1).padStart(4,'0')}"></div><div class="field"><label>Date</label><input type="date" name="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="field full"><label>Supplier</label><select name="supplierId">${db.suppliers.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('')}</select></div><div class="field full"><label>Item</label><select name="itemId">${db.items.map(i=>`<option value="${i.id}">${esc(i.name)}</option>`).join('')}</select></div><div class="field"><label>Quantity</label><input type="number" name="qty" value="1" min=".01" step=".01"></div><div class="field"><label>Rate</label><input type="number" name="rate" value="${db.items[0]?.purchase||0}" step=".01"></div></div><div class="toolbar"><button type="button" class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn">Save Purchase</button></div></form>`)}
+function savePurchase(e){e.preventDefault();let f=new FormData(e.target),q=+f.get('qty'),r=+f.get('rate'),total=q*r;db.purchases.push({id:uid('P'),no:f.get('no'),date:f.get('date'),supplierId:f.get('supplierId'),itemId:f.get('itemId'),qty:q,rate:r,total});let i=db.items.find(x=>x.id===f.get('itemId'));if(i)i.stock+=q;save();closeModal();purchases()}
+
+function payments(){simpleMoney('payments','Payment','Supplier / Account')}
+function receipts(){simpleMoney('receipts','Receipt','Customer / Account')}
+function simpleMoney(type,label,partyLabel){content.innerHTML=`<div class="title">${label}s</div><div class="toolbar"><div class="muted">Record actual ${label.toLowerCase()} entries.</div><button class="btn" onclick="addMoney('${type}','${label}','${partyLabel}')">+ New ${label}</button></div><div class="card"><table class="table"><thead><tr><th>Date</th><th>Party / Account</th><th>Amount</th><th>Mode</th><th>Note</th></tr></thead><tbody>${db[type].length?db[type].map(x=>`<tr><td>${x.date}</td><td>${esc(x.party)}</td><td>${money(x.amount)}</td><td>${esc(x.mode)}</td><td>${esc(x.note)}</td></tr>`).join(''):`<tr><td colspan="5">${empty('No entries yet.')}</td></tr>`}</tbody></table></div>`}
+function addMoney(type,label,partyLabel){openModal(`<div class="modalhead"><h2>New ${label}</h2><button class="close" onclick="closeModal()">×</button></div><form onsubmit="saveMoney(event,'${type}','${label}')"><div class="formgrid"><div class="field"><label>Date</label><input type="date" name="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="field"><label>${partyLabel}</label><input name="party" required></div><div class="field"><label>Amount</label><input type="number" step=".01" min="0" name="amount" required></div><div class="field"><label>Mode</label><select name="mode"><option>Cash</option><option>Bank</option><option>UPI</option><option>Cheque</option></select></div><div class="field full"><label>Note</label><textarea name="note"></textarea></div></div><div class="toolbar"><button type="button" class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn">Save ${label}</button></div></form>`)}
+function saveMoney(e,type,label){e.preventDefault();let o=Object.fromEntries(new FormData(e.target));o.amount=+o.amount;db[type].push({id:uid('M'),...o});save();closeModal();window[type]();}
+
+function ledger(){let rows=[];db.invoices.forEach(x=>{let c=db.customers.find(c=>c.id===x.customerId);rows.push({date:x.date,ref:x.no,party:c?.name||'',debit:0,credit:x.total})});db.receipts.forEach(x=>rows.push({date:x.date,ref:'Receipt',party:x.party,debit:x.amount,credit:0}));content.innerHTML=`<div class="title">Ledger</div><div class="card"><table class="table"><thead><tr><th>Date</th><th>Reference</th><th>Party</th><th>Debit</th><th>Credit</th></tr></thead><tbody>${rows.length?rows.map(r=>`<tr><td>${r.date}</td><td>${r.ref}</td><td>${esc(r.party)}</td><td>${money(r.debit)}</td><td>${money(r.credit)}</td></tr>`).join(''):`<tr><td colspan="5">${empty('No ledger transactions yet.')}</td></tr>`}</tbody></table></div>`}
+function stock(){content.innerHTML=`<div class="title">Stock</div><div class="card"><table class="table"><thead><tr><th>Item</th><th>Code</th><th>Unit</th><th>Current Stock</th><th>Minimum</th><th>Status</th></tr></thead><tbody>${db.items.length?db.items.map(i=>`<tr><td>${esc(i.name)}</td><td>${esc(i.code)}</td><td>${esc(i.unit)}</td><td>${i.stock}</td><td>${i.min}</td><td>${i.stock<=i.min?'<span class="badge">Low Stock</span>':'OK'}</td></tr>`).join(''):`<tr><td colspan="6">${empty('No items created yet.')}</td></tr>`}</tbody></table></div>`}
+function reports(){let sales=db.invoices.reduce((a,x)=>a+x.total,0),pur=db.purchases.reduce((a,x)=>a+x.total,0);content.innerHTML=`<div class="title">Reports</div><div class="grid"><div class="card stat">Total Sales<b>${money(sales)}</b></div><div class="card stat">Total Purchase<b>${money(pur)}</b></div><div class="card stat">Receipts<b>${money(db.receipts.reduce((a,x)=>a+x.amount,0))}</b></div><div class="card stat">Payments<b>${money(db.payments.reduce((a,x)=>a+x.amount,0))}</b></div></div><div class="card" style="margin-top:18px"><h3>Current Summary</h3><p>Sales: ${money(sales)}</p><p>Purchases: ${money(pur)}</p><p><b>Gross Difference: ${money(sales-pur)}</b></p></div>`}
+function settings(){let s=db.settings;content.innerHTML=`<div class="title">Settings</div><div class="card"><form onsubmit="saveSettings(event)"><div class="formgrid"><div class="field"><label>Business Name</label><input name="companyName" value="${esc(s.companyName)}"></div><div class="field"><label>GSTIN</label><input name="gstin" value="${esc(s.gstin)}"></div><div class="field full"><label>Business Address</label><textarea name="address">${esc(s.address)}</textarea></div></div><div class="toolbar"><button class="btn">Save Settings</button></div></form></div>`}
+function saveSettings(e){e.preventDefault();let o=Object.fromEntries(new FormData(e.target));db.settings={...db.settings,...o};save();alert('Settings saved');settings()}
+
+showPage('dashboard');
+checkLogin();
+</script>
+</body>
+</html>
